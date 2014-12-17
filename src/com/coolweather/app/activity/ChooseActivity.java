@@ -34,10 +34,12 @@ import com.coolweather.app.util.HttpUtil;
  */
 public class ChooseActivity extends BaseActivity {
 	
+	//当前显示界面内容等级
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
 	public static final int LEVEL_COUNTY = 2;
 	
+	//控件
 	private ProgressDialog progressDialog;
 	private TextView titleView;
 	private ListView listView;
@@ -45,25 +47,32 @@ public class ChooseActivity extends BaseActivity {
 	private CoolWeatherDB coolWeatherDB;
 	private List<String> dataList = new ArrayList<String>(); 
 	
+	//数据
 	private List<Province> provinceList;
 	private List<City> cityList;
 	private List<County> countyList;
 	
+	//选择的内容
 	private Province selectedProvince;
 	private City selectedCity;
 	private int currentLevel;
 	
+	//常量
 	private static final String QUERY_COUNTY = "county";
 	private static final String QUERY_CITY = "city";
 	private static final String QUERY_PROVINCE = "province";
+	
+	//判断是否从WeatherActivity中跳转过来
+	private boolean isFromWeatherActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		//若已查询某地的天气则再次打开系统直接显示天气
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if (prefs.getBoolean("city_selected", false)) {
+		isFromWeatherActivity = getIntent().getBooleanExtra("from_weatheractivity",false);
+		
+		//若已查询某城市的天气且不是从WeatherActivity跳转过来则直接显示天气
+		if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
 			Intent intent = new Intent(this,WeatherActivity.class);;
 			startActivity(intent);
 			finish();
@@ -236,6 +245,10 @@ public class ChooseActivity extends BaseActivity {
 		}else if (currentLevel == LEVEL_CITY) {
 			queryProvinces();
 		}else{
+			if (isFromWeatherActivity) {
+				Intent intent = new Intent(this,WeatherActivity.class);
+				startActivity(intent);
+			}
 			finish();
 		}
 	}
